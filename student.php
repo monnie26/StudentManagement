@@ -102,6 +102,10 @@ $searchClass = isset($_GET['search_class']) ? trim($_GET['search_class']) : '';
         <a href="class.php" class="class-btn">Manage Classes</a>
       </div>
 
+      <div class="actions">
+        <a href="class.php" class="class-btn">Student Records </a>
+      </div>
+
     <div class="records-container">
     <h2>Student Records</h2> 
     <form method= "GET" class= "search-bar">
