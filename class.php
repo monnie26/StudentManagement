@@ -1,7 +1,14 @@
 <?php 
 require_once('db_connect.php');
-if($_SERVER["REQUEST_METHOD"] == "POST"){
 
+session_start();
+if ($_SESSION['role'] != 'faculty') {
+    header("Location: login.php");
+    exit;
+}
+include "navbar.php";
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
 $classname = $_POST['className'];
 $classSql = "SELECT class_Id, class_name FROM class";
 $classResult = $conn->query($classSql);
@@ -20,7 +27,8 @@ $stmt = $conn->prepare("INSERT INTO class(class_name) VALUES(?)");
 $stmt->bind_param("s",$classname);
 
 if($stmt->execute()){
-    echo "Data sent successfully";
+    $msg = $classname . " - Added successfully!";
+    echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.pathname;</script>";
 } else{
     echo "Error: ". $stmt->error;
 }
@@ -34,6 +42,7 @@ if($stmt->execute()){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Class Form</title>
      <link rel="stylesheet" href="class.css">
+     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="form-container">

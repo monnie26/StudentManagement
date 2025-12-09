@@ -1,5 +1,12 @@
 <?php 
 require_once('db_connect.php');
+session_start();
+if ($_SESSION['role'] != 'student' && $_SESSION['role'] != 'faculty') {
+    header("Location: login.php");
+    exit;
+}
+include "navbar.php";
+
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
 
   $studentName = $_POST['studentName'] ?? '';
@@ -12,7 +19,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
   if ($studentName === '' || $classId <= 0) {
     echo "Error: Student name and class are required.";
   } else {
-
     $checkClass = $conn->prepare("SELECT class_id FROM class WHERE class_id = ?");
     $checkClass->bind_param("i", $classId);
     $checkClass->execute();
@@ -23,25 +29,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['submit'])) {
       $checkClass->close();
     } else {
       $checkClass->close();
-
       $stmt = $conn->prepare("INSERT INTO student(student_name, father_name, mother_name, email_id, dob, class_id) VALUES(?,?,?,?,?,?)");
       $stmt->bind_param("sssssi", $studentName, $fatherName, $motherName, $emailId, $dob, $classId);
 
       if ($stmt->execute()) {
-        echo "Data sent successfully";
+        $msg = "Student " . $studentName . " registered successfully!";
+        echo "<script>alert(" . json_encode($msg) . "); window.location.href = window.location.pathname;</script>";
       } else {
         echo "Error: " . $stmt->error;
       }
-
       $stmt->close();
     }
   }
 }
 $classSql = "SELECT class_id, class_name FROM class";
 $classResult = $conn->query($classSql);
-$searchClass = isset($_GET['search_class']) ? trim($_GET['search_class']) : '';
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -97,13 +100,5 @@ $searchClass = isset($_GET['search_class']) ? trim($_GET['search_class']) : '';
         <button type="submit" name="submit">Submit</button>
     </form>
     </div>
-
-      <div class="actions">
-        <a href="class.php" class="class-btn">Manage Classes</a>
-      </div>
-
-      <div class="actions">
-        <a href="student_record.php" class="class-btn">Student Records </a>
-      </div>
 </body>
 </html>

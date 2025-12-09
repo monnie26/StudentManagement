@@ -39,11 +39,12 @@ label{
 }
 
 button{
-    width: 103%;
+    width: 100%;
     padding: 12px;
     background-color: #ce9056;
     cursor: pointer;
     border: none;
+    border-radius: 3px;
 }
 
 button:hover{
