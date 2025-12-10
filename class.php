@@ -8,20 +8,29 @@ if ($_SESSION['role'] != 'faculty') {
 }
 include "navbar.php";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['add_class'])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['className'])) {
     $classname = trim($_POST['className']);
-    $check = $conn->prepare("SELECT class_id FROM class WHERE class_name = ?");
-    $check->bind_param("s", $classname);
-    $check->execute();
-    $result = $check->get_result();
-
-    if ($result->num_rows > 0) {
-        echo "<script>alert('Class already exists!');</script>";
+    if ($classname === '') {
+        echo "<script>alert('Please enter a class name');</script>";
     } else {
-        $stmt = $conn->prepare("INSERT INTO class(class_name) VALUES(?)");
-        $stmt->bind_param("s", $classname);
-        $stmt->execute();
-        echo "<script>alert('Class added successfully!'); window.location.href='class.php';</script>";
+        $check = $conn->prepare("SELECT class_id FROM class WHERE class_name = ?");
+        $check->bind_param("s", $classname);
+        $check->execute();
+        $result = $check->get_result();
+
+        if ($result && $result->num_rows > 0) {
+            echo "<script>alert('Class already exists!');</script>";
+        } else {
+            $stmt = $conn->prepare("INSERT INTO class(class_name) VALUES(?)");
+            $stmt->bind_param("s", $classname);
+            if ($stmt->execute()) {
+                echo "<script>alert('Class added successfully!'); window.location.href='class.php';</script>";
+            } else {
+                echo "<script>alert('Failed to add class.');</script>";
+            }
+            $stmt->close();
+        }
+        $check->close();
     }
 }
 
