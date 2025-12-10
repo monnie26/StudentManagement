@@ -73,7 +73,7 @@ $classResult = $conn->query($classSql);
     <table class="student-table">
         <thead>
             <tr>
-                <th>ID</th>
+                <th>Id</th>
                 <th>Class Name</th>
                 <th>Action</th>
             </tr>
