@@ -51,7 +51,7 @@ if($stmt->execute()){
     <form  method ="POST"> 
         <div class="form-group">
             <label for="className">Class Name:</label>
-            <input type="text" id="className" name="className" required>
+            <input type="text" id="className" placeholder="Add class name"name="className" required>
         </div>
 
         <button type="submit">Submit</button>
