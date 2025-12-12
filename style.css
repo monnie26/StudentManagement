@@ -25,6 +25,11 @@ h2{
     margin-bottom: 20px;
 }
 
+.form-group1{
+    margin-bottom: 20px;
+    width: 405px;
+}
+
 label{
     display: flex;
     margin-bottom: 10px;

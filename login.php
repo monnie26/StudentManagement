@@ -46,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <?php if ($message) echo "<p style='color:red;'>$message</p>"; ?>
 
     <form method="POST">
-        <div class="form-group">
+        <div class="form-group1">
             <label>Username:</label>
             <input type="text" name="username" required>
         </div>
 
-        <div class="form-group">
+        <div class="form-group1">
             <label>Password:</label>
             <input type="password" name="password" required>
         </div>
