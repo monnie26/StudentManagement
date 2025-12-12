@@ -66,7 +66,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-                    <a href='edit.php?id=" . htmlspecialchars($result['id']) . "' class='btn-edit' style='margin-right:6px;'>Edit</a>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Records</title>
     <link rel="stylesheet" href="style.css">
