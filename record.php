@@ -11,41 +11,54 @@ if (isset($_GET['search_class'])) {
     $searchClass = $_GET['search_class'];
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
-    $deleteId = (int) $_POST['delete_id'];
-    if ($deleteId > 0) {
-        $delStmt = $conn->prepare("DELETE FROM student WHERE id = ?");
-        $delStmt->bind_param("i", $deleteId);
-        if ($delStmt->execute()) {
-            header('Location: record.php?msg=deleted');
-            exit;
-        }
-    }
-}
+// Handle update request
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_id'])) {
+    $id = (int) $_POST['update_id'];
+    $student = $_POST['student_name'] ?? '';
+    $father = $_POST['father_name'] ?? '';
+    $mother = $_POST['mother_name'] ?? '';
+    $email = $_POST['email_id'] ?? '';
+    $class_id = isset($_POST['class_id']) ? (int) $_POST['class_id'] : 0;
+    $editDob = isset($_POST['edit_dob']) && $_POST['edit_dob'] == '1';
+    $dob = $_POST['dob'] ?? null;
 
-if (
-    $_SERVER['REQUEST_METHOD'] === 'POST' &&
-    isset($_POST['update_id']) &&
-    isset($_POST['student_name']) &&
-    isset($_POST['father_name']) &&
-    isset($_POST['mother_name']) &&
-    isset($_POST['email_id']) &&
-    isset($_POST['dob']) &&
-    isset($_POST['class_id'])
-) {
-    $id = $_POST['update_id'];
-    $student = $_POST['student_name'];
-    $father = $_POST['father_name'];
-    $mother = $_POST['mother_name'];
-    $email = $_POST['email_id'];
-    $dob = $_POST['dob'];
-    $class_id = $_POST['class_id'];
-    $query = "UPDATE student SET student_name=?, father_name=?, mother_name=?, email_id=?, dob=?, class_id=? WHERE id=?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("ssssssi", $student, $father, $mother, $email, $dob, $class_id, $id);
+    if ($student === '' || $class_id <= 0) {
+        // validation fail - redirect back with error (simple)
+        header('Location: record.php?msg=invalid');
+        exit;
+    }
+
+    if ($editDob) {
+        $query = "UPDATE student SET student_name=?, father_name=?, mother_name=?, email_id=?, dob=?, class_id=? WHERE id=?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ssssssi", $student, $father, $mother, $email, $dob, $class_id, $id);
+    } else {
+        $query = "UPDATE student SET student_name=?, father_name=?, mother_name=?, email_id=?, class_id=? WHERE id=?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ssssii", $student, $father, $mother, $email, $class_id, $id);
+    }
     $stmt->execute();
     header("Location: record.php?msg=updated");
     exit;
+}
+
+// Handle delete request (faculty only)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_id'])) {
+    if (!isset($_SESSION)) { session_start(); }
+    // allow only faculty
+    if (isset($_SESSION['role']) && $_SESSION['role'] === 'faculty') {
+        $deleteId = (int) $_POST['delete_id'];
+        if ($deleteId > 0) {
+            $delStmt = $conn->prepare("DELETE FROM student WHERE id = ?");
+            $delStmt->bind_param("i", $deleteId);
+            if ($delStmt->execute()) {
+                header('Location: record.php?msg=deleted');
+                exit;
+            } else {
+                $deleteError = $delStmt->error;
+            }
+        }
+    }
 }
 ?>
 
@@ -53,6 +66,7 @@ if (
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+                    <a href='edit.php?id=" . htmlspecialchars($result['id']) . "' class='btn-edit' style='margin-right:6px;'>Edit</a>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Records</title>
     <link rel="stylesheet" href="style.css">
@@ -115,7 +129,7 @@ if ($total > 0) {
                     <td><input type='text' name='father_name' value='" . htmlspecialchars($result['father_name']) . "'></td>
                     <td><input type='text' name='mother_name' value='" . htmlspecialchars($result['mother_name']) . "'></td>
                     <td><input type='text' name='email_id' value='" . htmlspecialchars($result['email_id']) . "'></td>
-                    <td><input type='text' name='dob' value='" . htmlspecialchars($result['dob']) . "'></td>
+                    <td><input type='date' name='dob' value='" . htmlspecialchars($result['dob']) . "'></td>
                     <td>
                         <select name='class_id' required>
                             <option value=''disabled>Select class</option>";
